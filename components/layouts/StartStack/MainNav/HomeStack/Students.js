@@ -6,13 +6,32 @@ import { StyleSheet, View, Text, ScrollView } from "react-native";
 const BoxComponent = ({ text, imageSource }) => (
   <View style={styles.box}>
     <View style={styles.boxContent}>
-      <Avatar.Image size={40} source={imageSource} style={styles.avatar} />
+      {/* <Avatar.Image size={40} source={imageSource} style={styles.avatar} /> */}
       <Text style={styles.boxText}>{text}</Text>
     </View>
   </View>
 );
 
 export default function Students() {
+  const studentData = [
+    {
+      id: "S01",
+      name: "BNb",
+      class: "ts",
+    },
+    {
+      id: "S02",
+      name: "Another Name",
+      class: "ts",
+    },
+    {
+      id: "S03",
+      name: "jos",
+      class: "ts",
+    },
+    // Add more students as needed
+  ];
+
   return (
     <>
       <View style={styles.main}>
@@ -30,67 +49,19 @@ export default function Students() {
           ADD STUDENT
         </Button>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <View style={styles.boxRow}>
-            <BoxComponent
-              text="Box 12"
-              imageSource={require("../../../../../assets/favicon.png")}
-            />
-          </View>
-          {/* Add more BoxComponents here if needed */}
-          <View style={styles.boxRow}>
-            <BoxComponent
-              text="Box 12"
-              imageSource={require("../../../../../assets/favicon.png")}
-            />
-          </View>
-          <View style={styles.boxRow}>
-            <BoxComponent
-              text="Box 12"
-              imageSource={require("../../../../../assets/favicon.png")}
-            />
-          </View>
-          <View style={styles.boxRow}>
-            <BoxComponent
-              text="Box 12"
-              imageSource={require("../../../../../assets/favicon.png")}
-            />
-          </View>
-          <View style={styles.boxRow}>
-            <BoxComponent
-              text="Box 12"
-              imageSource={require("../../../../../assets/favicon.png")}
-            />
-          </View>
-          <View style={styles.boxRow}>
-            <BoxComponent
-              text="Box 12"
-              imageSource={require("../../../../../assets/favicon.png")}
-            />
-          </View>
-          <View style={styles.boxRow}>
-            <BoxComponent
-              text="Box 12"
-              imageSource={require("../../../../../assets/favicon.png")}
-            />
-          </View>
-          <View style={styles.boxRow}>
-            <BoxComponent
-              text="Box 12"
-              imageSource={require("../../../../../assets/favicon.png")}
-            />
-          </View>
-          <View style={styles.boxRow}>
-            <BoxComponent
-              text="Box 12"
-              imageSource={require("../../../../../assets/favicon.png")}
-            />
-          </View>
-          <View style={styles.boxRow}>
-            <BoxComponent
-              text="Box 12"
-              imageSource={require("../../../../../assets/favicon.png")}
-            />
-          </View>
+          {studentData.map((student, index) => (
+            <View key={index} style={styles.boxRow}>
+              <BoxComponent
+                text={
+                  <Text>
+                    <Text style={styles.boldText}>{student.id}</Text>{"     "}
+                    {student.name}
+                  </Text>
+                }
+                // imageSource={require("../../../../../assets/favicon.png")}
+              />
+            </View>
+          ))}
         </ScrollView>
       </View>
 
@@ -105,6 +76,7 @@ export default function Students() {
     </>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -183,5 +155,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: 20,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+  },
+  boldText: {
+    fontWeight: "bold",
+    fontSize: 18,
   },
 });
