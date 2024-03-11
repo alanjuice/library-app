@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import { Appbar, Avatar, Button } from "react-native-paper";
+import { Appbar, Avatar, Button, ActivityIndicator } from "react-native-paper";
 import { StyleSheet, View, Text, ScrollView } from "react-native";
 import * as SecureStore from "expo-secure-store";
 
@@ -15,13 +15,13 @@ const BoxComponent = ({ text, imageSource }) => (
 
 export default function Students() {
   const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchStudents = async () => {
     try {
-      console.log("fetci");
       const token = await SecureStore.getItemAsync("token");
       const response = await fetch(
-        "http://192.168.241.171:3000" + "/teacher/students",
+        "http://192.168.0.177:3000" + "/teacher/students",
         {
           method: "GET",
           headers: {
@@ -33,47 +33,59 @@ export default function Students() {
       const responseData = await response.json();
       console.log(responseData);
       setStudents(responseData);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
   useEffect(() => {
-    fetchStudents();
+    setTimeout(() => {
+      fetchStudents();
+    }, 200);
   }, []);
 
   console.log(students);
   return (
     <>
-      <View style={styles.main}>
-        <Text>hello world</Text>
-      </View>
+      <View style={styles.main}></View>
 
       <View style={styles.container}>
-        <Button
-          icon=""
-          mode="contained"
-          onPress={() => console.log("Pressed archive")}
-          style={[styles.addButton, { margin: 10, backgroundColor: "#F20C0C" }]}
-        >
-          ADD STUDENT
-        </Button>
-        {students && (
-          <ScrollView contentContainerStyle={styles.scrollContainer}>
-            {students.map((student, index) => (
-              <View key={index} style={styles.boxRow}>
-                <BoxComponent
-                  text={
-                    <Text>
-                      <Text style={styles.boldText}>{student.id}</Text>
-                      {"     "}
-                      {student.name}
-                    </Text>
-                  }
-                  // imageSource={require("../../../../../assets/favicon.png")}
-                />
-              </View>
-            ))}
-          </ScrollView>
+        {loading ? (
+          <ActivityIndicator size="large" color="#0000ff" />
+        ) : (
+          <View>
+            <Button
+              icon=""
+              mode="contained"
+              onPress={() => console.log("Pressed archive")}
+              style={[
+                {
+                  margin: 10,
+                  width: "50%",
+                  alignSelf: "center",
+                  backgroundColor: "#F20C0C",
+                },
+              ]}
+            >
+              ADD STUDENT
+            </Button>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+              {students.map((student, index) => (
+                <View key={index} style={styles.boxRow}>
+                  <BoxComponent
+                    text={
+                      <Text>
+                        <Text style={styles.boldText}>{student.id}</Text>
+                        {"     "}
+                        {student.name}
+                      </Text>
+                    }
+                    // imageSource={require("../../../../../assets/favicon.png")}
+                  />
+                </View>
+              ))}
+            </ScrollView>
+          </View>
         )}
       </View>
 
@@ -94,7 +106,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#ffff",
     alignItems: "",
-    justifyContent: "center", 
+    justifyContent: "center",
     position: "absolute",
     bottom: 0,
     height: "75%",
@@ -127,11 +139,11 @@ const styles = StyleSheet.create({
   },
   boxText: {
     marginLeft: 10,
-    flex: 1, 
-    flexWrap: "wrap", 
+    flex: 1,
+    flexWrap: "wrap",
   },
   box: {
-    flex: 1, 
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#e6e6e6",
@@ -140,7 +152,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 0,
     height: 60,
-    width: "90%", 
+    width: "90%",
   },
 
   boxRow: {
