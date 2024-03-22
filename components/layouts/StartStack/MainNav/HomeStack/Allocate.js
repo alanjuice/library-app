@@ -1,24 +1,45 @@
-import React, { useState } from "react";
-import { StatusBar } from "expo-status-bar";
-import { Appbar, Avatar, Button } from "react-native-paper";
-import { StyleSheet, View, Text, ScrollView } from "react-native";
+import React, { useEffect, useState } from "react";
+import { StatusBar, Switch } from "react-native";
+import { Appbar, Avatar, ActivityIndicator, Button } from "react-native-paper";
+import { StyleSheet, View, Text, ScrollView, TextInput } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
+import * as SecureStore from "expo-secure-store";
 
-const BoxComponent = ({ text, imageSource }) => {
-  const data = [
-    { label: "book 1", value: "1" },
-    { label: "book 2", value: "2" },
-    { label: "book 3", value: "3" },
-    { label: "book 4", value: "4" },
-    { label: "book 5", value: "5" },
-  ];
+const returnBook = async (bookId) => {
+  const token = await SecureStore.getItemAsync("token");
+  fetch("http://192.168.0.107:3000/teacher/deallocate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-authtoken": token,
+    },
+    body: JSON.stringify({ bookId }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.status) {
+        alert("Book deallocated Successfully");
+      } else {
+        alert("Error man");
+      }
+      console.log("Return Book Response:", data);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+};
+const BoxComponent = ({ text, data, student, onSelectBook }) => {
+  const id = student.id;
   const [value, setValue] = useState(null);
+
+  const handleValueChange = (item) => {
+    setValue(item.value);
+    onSelectBook(id, item.value); // Update parent state when value changes
+  };
+
   return (
     <View style={styles.box}>
       <View style={styles.boxContent}>
-        {imageSource && (
-          <Avatar.Image size={40} source={imageSource} style={styles.avatar} />
-        )}
         <Text style={styles.boxText}>{text}</Text>
       </View>
       <View style={styles.dropdownContainer}>
@@ -36,45 +57,200 @@ const BoxComponent = ({ text, imageSource }) => {
           placeholder="Select item"
           searchPlaceholder="Search..."
           value={value}
-          onChange={(item) => {
-            setValue(item.value);
-          }}
+          onChange={handleValueChange} // Call handleValueChange directly
         />
       </View>
     </View>
   );
 };
 
-export default function Allocate() {
+export default function App() {
+  const [students, setStudents] = useState([]);
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isReturnBookPage, setIsReturnBookPage] = useState(true);
+  const [bookId, setBookId] = useState("");
+  const [selectedBooks, setSelectedBooks] = useState({}); // State to store selected book ID for each student
+
+  const togglePage = () => {
+    setIsReturnBookPage((prevValue) => !prevValue);
+    setSelectedBooks({});
+  };
+
+  const fetchData = async () => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+
+      // Fetching Students
+      let response = await fetch(
+        "https://sunday-library.onrender.com/teacher/students",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "x-authtoken": token,
+          },
+        }
+      );
+      let responseData = await response.json();
+      setStudents(responseData);
+
+      // Fetching Books
+      response = await fetch("http://192.168.0.107:3000/teacher/books", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "x-authtoken": token,
+        },
+      });
+      responseData = await response.json();
+      const data = responseData.map((item) => ({
+        label: item.name,
+        value: item.id,
+      }));
+      setBooks(data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []); // Ensure that useEffect runs only once on component mount
+
+  const handleSelectBook = (studentId, bookId) => {
+    console.log(selectedBooks);
+    setSelectedBooks((prevSelectedBooks) => ({
+      ...prevSelectedBooks,
+      [studentId]: bookId,
+    }));
+  };
+
+  const allocateBooks = async () => {
+    console.log("Selected Books:", selectedBooks);
+    const convertedArray = Object.entries(selectedBooks).map(([sid, bid]) => ({
+      sid: sid,
+      bid: bid, // Assuming you want bid as a number
+    }));
+
+    const token = await SecureStore.getItemAsync("token");
+    fetch("http://192.168.0.107:3000/teacher/allocate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-authtoken": token,
+      },
+      body: JSON.stringify(convertedArray),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status) {
+          alert("Book allocated Successfully");
+        } else {
+          alert("Error man");
+        }
+        console.log("Return Book Response:", data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
   return (
     <>
       <View style={styles.main}>
         <Text>hello world</Text>
+        <StatusBar style="auto" />
       </View>
 
       <View style={styles.container}>
-        <Button
-          icon=""
-          mode="contained"
-          onPress={() => console.log("Pressed archive")}
-          style={[styles.addButton, { margin: 10, backgroundColor: "#F20C0C" }]}
-        >
-          SAVE ALLOCATED BOOKS
-        </Button>
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <View style={styles.boxRow}>
-            <BoxComponent
-              text="Box "
-              imageSource={require("../../../../../assets/favicon.png")}
-            />
-          </View>
-          <View style={styles.boxRow}>
-            <BoxComponent
-              text="Box "
-              imageSource={require("../../../../../assets/favicon.png")}
-            />
-          </View>
-        </ScrollView>
+        <View style={styles.switchContainer}>
+          <Text>Save Allocated Books</Text>
+          <Switch
+            trackColor={{ false: "#09F12E", true: "#09F12E" }}
+            thumbColor={isReturnBookPage ? "#ffff" : "#ffff"}
+            value={isReturnBookPage}
+            onValueChange={togglePage}
+          />
+          <Text>return book</Text>
+        </View>
+
+        {isReturnBookPage ? (
+          <>
+            <Text style={styles.heading}>
+              {isReturnBookPage ? "Return Book" : "hi"}
+            </Text>
+            <View style={styles.bookIdSection}>
+              <Text style={styles.bookIdLabel}>Book ID:</Text>
+              <TextInput
+                placeholder="Enter Book ID"
+                style={styles.bookIdInput}
+                value={bookId}
+                onChangeText={setBookId}
+              />
+            </View>
+
+            <Button
+              icon=""
+              mode="contained"
+              onPress={() => {
+                console.log("dd");
+                returnBook(bookId);
+              }}
+              style={[
+                styles.submitButton,
+                { margin: 10, backgroundColor: "#EE0823" },
+              ]}
+            >
+              Submit
+            </Button>
+
+            <ScrollView
+              contentContainerStyle={styles.scrollContainer}
+            ></ScrollView>
+          </>
+        ) : (
+          <>
+            <Button
+              icon=""
+              mode="contained"
+              onPress={allocateBooks}
+              style={[
+                styles.addButton,
+                { margin: 10, backgroundColor: "#F20C0C" },
+              ]}
+            >
+              SAVE ALLOCATED BOOKS
+            </Button>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+              {loading ? (
+                <ActivityIndicator size="large" color="#0000ff" />
+              ) : (
+                <View>
+                  <ScrollView contentContainerStyle={styles.scrollContainer}>
+                    {students.map((student, index) => (
+                      <View key={index} style={styles.boxRow}>
+                        <BoxComponent
+                          student={student}
+                          data={books}
+                          text={
+                            <Text>
+                              <Text style={styles.boldText}>{student.id}</Text>
+                              {"     "}
+                              {student.name}
+                            </Text>
+                          }
+                          onSelectBook={handleSelectBook}
+                        />
+                      </View>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+            </ScrollView>
+          </>
+        )}
       </View>
 
       <Appbar style={styles.appbar}>
@@ -88,12 +264,13 @@ export default function Allocate() {
     </>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#ffff",
     alignItems: "",
-    justifyContent: "center",
+    justifyContent: "center", // Changed to flex-start to position at top
     position: "absolute",
     bottom: 0,
     height: "75%",
@@ -126,11 +303,11 @@ const styles = StyleSheet.create({
   },
   boxText: {
     marginLeft: 10,
-    flex: 1,
-    flexWrap: "wrap", 
+    flex: 1, // Adjusted to take remaining space
+    flexWrap: "wrap", // Allow text to wrap if exceeding width
   },
   box: {
-    flex: 1, 
+    flex: 1, // This line makes the width 100%
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#e6e6e6",
@@ -139,14 +316,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 0,
     height: 60,
-    width: "90%", 
+    width: "90%", // Set width to 90%
   },
 
   boxRow: {
     flexDirection: "row",
     justifyContent: "space-around",
     marginBottom: 10,
-    alignItems: "center",
+    alignItems: "center", // Added to center boxes horizontally
   },
   avatar: {
     marginRight: 10,
@@ -191,5 +368,41 @@ const styles = StyleSheet.create({
   inputSearchStyle: {
     height: 40,
     fontSize: 16,
+  },
+
+  bookIdSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+    marginHorizontal: 20, // Changed margin to marginHorizontal
+  },
+
+  bookIdLabel: {
+    marginRight: 0,
+  },
+
+  bookIdInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 10,
+    margin: 20,
+    flex: 1, // Allow most of the space in the row
+  },
+
+  heading: {
+    fontSize: 20,
+    margin: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+
+    textAlign: "center",
+  },
+
+  switchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 10,
+    fontSize: 96,
   },
 });
