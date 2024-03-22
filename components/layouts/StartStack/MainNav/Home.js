@@ -6,6 +6,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 //Screens
 import Menu from "./HomeStack/Menu";
 import Student from "./HomeStack/Students";
+import Books from "./HomeStack/Books";
 import Allocate from "./HomeStack/Allocate";
 
 const Stack = createStackNavigator();
@@ -26,6 +27,11 @@ const HomeStack = () => {
       <Stack.Screen
         name="Allocate"
         component={Allocate}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Books"
+        component={Books}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
