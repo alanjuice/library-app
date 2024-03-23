@@ -405,4 +405,12 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     fontSize: 96,
   },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 5,
+    backgroundColor: "#f0f0f0",
+  }
 });

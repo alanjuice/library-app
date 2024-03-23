@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 20,
     borderColor: "#e6e6e6",
-    overflow: "hidden",
+    shadowOffset: {width: -2, height: 2},
   },
   main: {
     flex: 1,
