@@ -9,12 +9,13 @@ import {
 } from "react-native";
 import { Appbar, Avatar } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
+import * as Animatable from "react-native-animatable";
 
-const BoxComponent = ({ text, imageSource }) => (
-  <View style={styles.box}>
+const BoxComponent = ({ text, imageSource, backgroundColor }) => (
+  <Animatable.View animation="fadeIn" duration={10000} style={[styles.box, { backgroundColor }]}>
     <Image source={imageSource} style={styles.boxImage} />
     <Text>{text}</Text>
-  </View>
+  </Animatable.View>
 );
 
 function Menu() {
@@ -23,6 +24,15 @@ function Menu() {
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.mainContainer}>
+        <Appbar style={styles.appbar}>
+          <Text style={styles.appbarText}>welcome teacher name</Text>
+          <Avatar.Image
+            size={50}
+            source={require("../../../../../assets/pfp.png")}
+            style={styles.avatar}
+          />
+        </Appbar>   
+        
         <View style={styles.container}>
           <View style={styles.columnContainer}>
             <TouchableOpacity
@@ -33,7 +43,8 @@ function Menu() {
             >
               <BoxComponent
                 text="Students"
-                imageSource={require("../../../../../assets/favicon.png")}
+                imageSource={require("../../../../../assets/students.png")}
+                backgroundColor="#AACCFF" // Specify color for the box
               />
             </TouchableOpacity>
 
@@ -43,7 +54,8 @@ function Menu() {
             >
               <BoxComponent
                 text="Allocate"
-                imageSource={require("../../../../../assets/favicon.png")}
+                imageSource={require("../../../../../assets/allocate.png")}
+                backgroundColor="#00B3FF" // Specify color for the box
               />
             </TouchableOpacity>
           </View>
@@ -57,25 +69,20 @@ function Menu() {
             >
               <BoxComponent
                 text="Books"
-                imageSource={require("../../../../../assets/favicon.png")}
+                imageSource={require("../../../../../assets/books.png")}
+                backgroundColor="#6FD6FF"
+                 // Specify color for the box
               />
             </TouchableOpacity>
             <TouchableOpacity style={styles.columnContainer}>
               <BoxComponent
                 text="Analytics"
-                imageSource={require("../../../../../assets/favicon.png")}
+                imageSource={require("../../../../../assets/analytics.png")}
+                backgroundColor="#8AC8FF" // Specify color for the box
               />
             </TouchableOpacity>
           </View>
         </View>
-        <Appbar style={styles.appbar}>
-          <Text style={styles.appbarText}>St Marys Library</Text>
-          <Avatar.Image
-            size={50}
-            source={require("../../../../../assets/favicon.png")}
-            style={styles.avatar}
-          />
-        </Appbar>
       </View>
     </View>
   );
@@ -83,7 +90,7 @@ function Menu() {
 
 const styles = StyleSheet.create({
   appbar: {
-    backgroundColor: "#0D08F3",
+   backgroundColor: "#0086D1",
     height: 64,
     flexDirection: "row",
     position: "absolute",
@@ -100,31 +107,37 @@ const styles = StyleSheet.create({
   },
   mainContainer: {
     flex: 1,
-    backgroundColor: "#0D08F3",
+    alignItems: "center",
+    backgroundColor: "#0086D1",
+    justifyContent: "flex-end", // Align content to the bottom
   },
+  container: {
+    flexDirection: "row",
+    backgroundColor: "#ffff",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "80%", // Adjust height as needed
+    width: "100%",
+    borderTopLeftRadius: 20, // Border radius at the top left
+    borderTopRightRadius: 20, // Border radius at the top right
+    borderBottomLeftRadius: 0, // No border radius at the bottom left
+    borderBottomRightRadius: 0, // No border radius at the bottom right
+   
+    borderColor: "#e6e6e6",
+    bottom:-1
+    
+  },
+  
   main: {
     flex: 1,
     backgroundColor: "#0D08F3",
     alignItems: "center",
     justifyContent: "center",
   },
-  container: {
-    flex: 1,
-    flexDirection: "row",
-    backgroundColor: "#ffff",
-    alignItems: "center",
-    justifyContent: "center",
-    position: "absolute",
-    bottom: 0,
-    height: "75%",
-    width: "100%",
-    borderRadius: 20,
-    borderColor: "#e6e6e6",
-    marginBottom: 70,
-  },
+  
   boxImage: {
-    width: 50,
-    height: 50,
+    width: 70,
+    height: 70,
     marginBottom: 10,
   },
   bottombar: {
@@ -144,6 +157,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#e6e6e6",
     margin: 20,
     borderRadius: 10,
+    elevation: 5, // Add elevation for drop shadow effect
+    shadowColor: "#000", // Set shadow color
+    shadowOffset: {
+      width: 5,
+      height: 5,
+    },
+    shadowOpacity: 1, // Set shadow opacity
+    shadowRadius: 5, // Set shadow radius
   },
   columnContainer: {
     flex: 1,
@@ -153,5 +174,4 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
 });
-
 export default Menu;

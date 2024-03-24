@@ -17,22 +17,26 @@ const HomeStack = () => {
       <Stack.Screen
         name="Menu"
         component={Menu}
-        options={{ headerShown: false }}
+        options={{ headerShown: false,
+           }}
       />
       <Stack.Screen
         name="Students"
         component={Student}
-        options={{ headerShown: false }}
+        options={{ headerShown: false,
+        }}
       />
       <Stack.Screen
         name="Allocate"
         component={Allocate}
-        options={{ headerShown: false }}
+        options={{ headerShown: false,
+         }}
       />
       <Stack.Screen
         name="Books"
         component={Books}
-        options={{ headerShown: false }}
+        options={{ headerShown: false ,
+        }}
       />
     </Stack.Navigator>
   );
