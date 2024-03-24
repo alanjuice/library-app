@@ -7,7 +7,7 @@ import * as SecureStore from "expo-secure-store";
 
 const returnBook = async (bookId) => {
   const token = await SecureStore.getItemAsync("token");
-  fetch("http://192.168.0.107:3000/teacher/deallocate", {
+  fetch("https://sunday-library.onrender.com/teacher/deallocate", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -96,13 +96,16 @@ export default function App() {
       setStudents(responseData);
 
       // Fetching Books
-      response = await fetch("http://192.168.0.107:3000/teacher/books", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "x-authtoken": token,
-        },
-      });
+      response = await fetch(
+        "https://sunday-library.onrender.com/teacher/books",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "x-authtoken": token,
+          },
+        }
+      );
       responseData = await response.json();
       const data = responseData.map((item) => ({
         label: item.name,
@@ -135,7 +138,7 @@ export default function App() {
     }));
 
     const token = await SecureStore.getItemAsync("token");
-    fetch("http://192.168.0.107:3000/teacher/allocate", {
+    fetch("https://sunday-library.onrender.com/teacher/allocate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
