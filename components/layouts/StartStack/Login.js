@@ -33,7 +33,7 @@ export default function LoginForm() {
   };
 
   const handleLogin = () => {
-    fetch("http://192.168.0.177:3000" + "/teacher/login", {
+    fetch("https://sunday-library.onrender.com/" + "teacher/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

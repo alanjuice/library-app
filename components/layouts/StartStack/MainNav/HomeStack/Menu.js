@@ -61,7 +61,12 @@ function Menu() {
           </View>
 
           <View style={styles.columnContainer}>
-            <TouchableOpacity style={styles.columnContainer}>
+            <TouchableOpacity
+              style={styles.columnContainer}
+              onPress={() => {
+                navigation.navigate("Books");
+              }}
+            >
               <BoxComponent
                 text="Books"
                 imageSource={require("../../../../../assets/books.png")}

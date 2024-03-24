@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { StatusBar } from "expo-status-bar";
 import { Appbar, Avatar, Button, ActivityIndicator } from "react-native-paper";
 import { StyleSheet, View, Text, ScrollView } from "react-native";
 import * as SecureStore from "expo-secure-store";
@@ -7,6 +6,7 @@ import * as SecureStore from "expo-secure-store";
 // Component for individual book box
 const BookBox = ({ book }) => (
   <View style={styles.bookBox}>
+    <Text style={styles.bookId}>{book.id}</Text>
     <Text style={styles.bookText}>{book.name}</Text>
   </View>
 );
@@ -19,7 +19,7 @@ export default function Books() {
     try {
       const token = await SecureStore.getItemAsync("token");
       const response = await fetch(
-        "https://sunday-library.onrender.com/teacher/books",
+        "https://sunday-library.onrender.com" + "/teacher/books",
         {
           method: "GET",
           headers: {
@@ -72,7 +72,6 @@ export default function Books() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -101,6 +100,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     padding: 20,
     borderRadius: 10,
+  },
+  bookId: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 5, // Added margin bottom for spacing
   },
   bookText: {
     fontSize: 18,
