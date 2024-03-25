@@ -78,6 +78,23 @@ export default function Students() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#ffff",
+    alignItems: "",
+    justifyContent: "center",
+    position: "absolute",
+    bottom: 0,
+    height: "75%",
+    width: "100%",
+    borderRadius: 20,
+    borderColor: "#e6e6e6",
+    shadowOffset: {width: -2, height: 2},
+  },
+  main: {
+    flex: 1,
+    backgroundColor: "#0D08F3",
+    alignItems: "center",
+    justifyContent: "center",
+    opacity: 0.66,
     backgroundColor: "#ffffff",
   },
   appbar: {

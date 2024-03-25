@@ -9,13 +9,20 @@ const Tab = createBottomTabNavigator();
 
 export default function MainScreen() {
   return (
-    <Tab.Navigator style={{ backgroundColor: "blue" }}>
+    <Tab.Navigator tabBarOptions={{
+       
+      tabStyle: { borderTopWidth: 0.2, Color: '#ffff',borderColor:'blue' }, // Remove line above icon
+      // You can add more styles as needed
+    }}>
       <Tab.Screen
         name="Home"
         component={HomeScreen}
         options={{
+          headerTitle: 'St Marys Sunday School',
+          headerStyle: { backgroundColor: '#ffff' },
+          headerTitleStyle: { fontWeight: '900', },
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" size={size} color={color} />
+            <Ionicons name="home-sharp" size={size} color={color} />
           ),
         }}
       />
@@ -24,6 +31,7 @@ export default function MainScreen() {
         name="Settings"
         component={SettingsScreen}
         options={{
+          headerTitle: 'St Marys Sunday School',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="settings-outline" size={size} color={color} />
           ),
