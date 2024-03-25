@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { StatusBar } from "expo-status-bar";
 import { Appbar, Avatar, Button, ActivityIndicator } from "react-native-paper";
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import * as SecureStore from "expo-secure-store";
 
-// Component for individual student box
 const StudentBox = ({ student }) => (
   <View style={styles.studentBox}>
-    <Text style={styles.studentId}> ID  : {student.id}</Text>
-    <Text style={styles.studentName}> NAME : {student.name}</Text>
+    <Text style={styles.studentId}>{student.id}</Text>
+    <Text style={styles.studentName}>{student.name}</Text>
   </View>
 );
 
@@ -52,7 +56,7 @@ export default function Students() {
     <View style={{ flex: 1 }}>
       <View style={styles.mainContainer}>
         <Appbar style={styles.appbar}>
-          <Text style={styles.appbarText}>Students List</Text>
+          <Text style={styles.appbarText}>Students</Text>
           {/* <Avatar.Image
           size={40}
           source={require("../../../../../assets/favicon.png")}
@@ -60,7 +64,6 @@ export default function Students() {
         /> */}
         </Appbar>
         <View style={styles.container}>
-
           {loading ? (
             <ActivityIndicator
               style={styles.loadingIndicator}
@@ -68,9 +71,7 @@ export default function Students() {
               color="#0000ff"
             />
           ) : (
-
             <ScrollView contentContainerStyle={styles.scrollContainer}>
-              
               {students.map((student, index) => (
                 <StudentBox key={index} student={student} />
               ))}
@@ -139,14 +140,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     padding: 20,
     borderRadius: 10,
-    elevation: 5, // Adding elevation for shadow effect
-    shadowColor: "#000", // Color of the shadow
-    shadowOffset: {
-      width: 0, // No horizontal offset
-      height: 2, // Vertical offset
-    },
-    shadowOpacity: 0.25, // Opacity of the shadow
-    shadowRadius: 3.84, // Radius of the shadow
   },
   studentId: {
     fontSize: 16,

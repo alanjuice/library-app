@@ -196,14 +196,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#3278D680",
     margin: 20,
     borderRadius: 10,
-    elevation: 5, // Add elevation for drop shadow effect
-    shadowColor: "#000", // Set shadow color
-    shadowOffset: {
-      width: 5,
-      height: 5,
-    },
-    shadowOpacity: 1, // Set shadow opacity
-    shadowRadius: 5, // Set shadow radius
   },
   columnContainer: {
     flex: 1,
