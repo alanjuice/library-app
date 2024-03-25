@@ -12,7 +12,7 @@ import { useNavigation } from "@react-navigation/native";
 import * as Animatable from "react-native-animatable";
 
 const BoxComponent = ({ text, imageSource, backgroundColor }) => (
-  <Animatable.View animation="fadeIn" duration={10000} style={[styles.box, { backgroundColor }]}>
+  <Animatable.View animation="fadeIn" duration={1000} style={[styles.box, { backgroundColor }]}>
     <Image source={imageSource} style={styles.boxImage} />
     <Text>{text}</Text>
   </Animatable.View>
@@ -90,7 +90,8 @@ function Menu() {
 
 const styles = StyleSheet.create({
   appbar: {
-   backgroundColor: "#0086D1",
+   backgroundColor: "#ffff",
+   color:'black',
     height: 64,
     flexDirection: "row",
     position: "absolute",
@@ -102,13 +103,14 @@ const styles = StyleSheet.create({
   },
   appbarText: {
     color: "white",
+    color:'black',
     fontSize: 25,
     fontWeight: "700",
   },
   mainContainer: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: "#0086D1",
+    backgroundColor: "#ffff",
     justifyContent: "flex-end", // Align content to the bottom
   },
   container: {
@@ -154,7 +156,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#e6e6e6",
+    backgroundColor: "#3278D680",
     margin: 20,
     borderRadius: 10,
     elevation: 5, // Add elevation for drop shadow effect

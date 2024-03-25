@@ -6,8 +6,8 @@ import * as SecureStore from "expo-secure-store";
 // Component for individual book box
 const BookBox = ({ book }) => (
   <View style={styles.bookBox}>
-    <Text style={styles.bookId}>{book.id}</Text>
-    <Text style={styles.bookText}>{book.name}</Text>
+    <Text style={styles.bookId}>BOOK ID :  {book.id}</Text>
+    <Text style={styles.bookText}>BOOK NAME :{book.name}</Text>
   </View>
 );
 
@@ -47,8 +47,9 @@ export default function Books() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <Appbar style={styles.appbar}>
+    <View style={{ flex: 1 }}>
+    <View style={styles.mainContainer}>
+    <Appbar style={styles.appbar}>
         <Text style={styles.appbarText}>Books List</Text>
         <Avatar.Image
           size={40}
@@ -56,6 +57,8 @@ export default function Books() {
           style={styles.avatar}
         />
       </Appbar>
+    <View style={styles.container}>
+      
       {loading ? (
         <ActivityIndicator
           style={styles.loadingIndicator}
@@ -70,21 +73,43 @@ export default function Books() {
         </ScrollView>
       )}
     </View>
+    </View>
+    </View>
   );
 }
 const styles = StyleSheet.create({
-  container: {
+  mainContainer: {
     flex: 1,
-    backgroundColor: "#ffffff",
+    alignItems: "center",
+    backgroundColor: "#075e9c",
+    justifyContent: "flex-end", // Align content to the bottom
+  },
+  container: {
+    flexDirection: "row",
+    backgroundColor: "#ffff",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "80%", // Adjust height as needed
+    width: "100%",
+    borderTopLeftRadius: 20, // Border radius at the top left
+    borderTopRightRadius: 20, // Border radius at the top right
+    borderBottomLeftRadius: 0, // No border radius at the bottom left
+    borderBottomRightRadius: 0, // No border radius at the bottom right
+   
+    borderColor: "#e6e6e6",
+    bottom:-1
   },
   appbar: {
-    backgroundColor: "#0D08F3",
-    height: 64,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
+    backgroundColor: "#075e9c",
+     height: 64,
+     flexDirection: "row",
+     position: "absolute",
+     justifyContent: "space-between",
+     top: 20,
+     left: 0,
+     right: 0,
+     paddingHorizontal: 20,
+   },
   appbarText: {
     color: "white",
     fontSize: 25,
@@ -95,19 +120,23 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   bookBox: {
-    backgroundColor: "#e6e6e6",
+    backgroundColor: "#3278D680",
+    
     marginHorizontal: 20,
     marginBottom: 10,
     padding: 20,
     borderRadius: 10,
+    
+    
   },
   bookId: {
-    fontSize: 16,
+    
+    fontSize: 18,
     fontWeight: "bold",
     marginBottom: 5, // Added margin bottom for spacing
   },
   bookText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
   },
   loadingIndicator: {

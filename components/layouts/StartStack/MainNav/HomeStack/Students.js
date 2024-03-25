@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { Appbar, Avatar, Button, ActivityIndicator } from "react-native-paper";
-import { StyleSheet, View, Text, ScrollView } from "react-native";
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, } from "react-native";
 import * as SecureStore from "expo-secure-store";
 
 // Component for individual student box
 const StudentBox = ({ student }) => (
   <View style={styles.studentBox}>
-    <Text style={styles.studentId}>{student.id}</Text>
-    <Text style={styles.studentName}>{student.name}</Text>
+    <Text style={styles.studentId}> ID  : {student.id}</Text>
+    <Text style={styles.studentName}> NAME : {student.name}</Text>
   </View>
 );
 
@@ -40,7 +40,7 @@ export default function Students() {
       console.log(responseData);
     } catch (error) {
       console.error("Error fetching data:", error);
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
@@ -49,60 +49,79 @@ export default function Students() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <Appbar style={styles.appbar}>
-        <Text style={styles.appbarText}>Students List</Text>
-        <Avatar.Image
+    <View style={{ flex: 1 }}>
+      <View style={styles.mainContainer}>
+        <Appbar style={styles.appbar}>
+          <Text style={styles.appbarText}>Students List</Text>
+          {/* <Avatar.Image
           size={40}
           source={require("../../../../../assets/favicon.png")}
           style={styles.avatar}
-        />
-      </Appbar>
-      {loading ? (
-        <ActivityIndicator
-          style={styles.loadingIndicator}
-          size="large"
-          color="#0000ff"
-        />
-      ) : (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-          {students.map((student, index) => (
-            <StudentBox key={index} student={student} />
-          ))}
-        </ScrollView>
-      )}
+        /> */}
+        </Appbar>
+        <View style={styles.container}>
+
+          {loading ? (
+            <ActivityIndicator
+              style={styles.loadingIndicator}
+              size="large"
+              color="#0000ff"
+            />
+          ) : (
+
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+              
+              {students.map((student, index) => (
+                <StudentBox key={index} student={student} />
+              ))}
+            </ScrollView>
+          )}
+        </View>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexDirection: "row",
     backgroundColor: "#ffff",
-    alignItems: "",
+    alignItems: "center",
     justifyContent: "center",
-    position: "absolute",
-    bottom: 0,
-    height: "75%",
+    height: "80%", // Adjust height as needed
     width: "100%",
-    borderRadius: 20,
+    borderTopLeftRadius: 20, // Border radius at the top left
+    borderTopRightRadius: 20, // Border radius at the top right
+    borderBottomLeftRadius: 0, // No border radius at the bottom left
+    borderBottomRightRadius: 0, // No border radius at the bottom right
+
     borderColor: "#e6e6e6",
-    shadowOffset: {width: -2, height: 2},
+    bottom: -1,
+    shadowOffset: { width: -2, height: 2 },
+  },
+  mainContainer: {
+    flex: 1,
+    alignItems: "center",
+    backgroundColor: "#075e9c",
+    justifyContent: "flex-end", // Align content to the bottom
   },
   main: {
     flex: 1,
-    backgroundColor: "#0D08F3",
+    backgroundColor: "#0C6EEECC",
     alignItems: "center",
     justifyContent: "center",
     opacity: 0.66,
     backgroundColor: "#ffffff",
   },
   appbar: {
-    backgroundColor: "#0D08F3",
+    backgroundColor: "#075e9c",
     height: 64,
     flexDirection: "row",
+    position: "absolute",
     justifyContent: "space-between",
-    alignItems: "center",
+    top: 20,
+    left: 0,
+    right: 0,
     paddingHorizontal: 20,
   },
   appbarText: {
@@ -115,11 +134,19 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   studentBox: {
-    backgroundColor: "#e6e6e6",
+    backgroundColor: "#3278D680",
     marginHorizontal: 20,
     marginBottom: 10,
     padding: 20,
     borderRadius: 10,
+    elevation: 5, // Adding elevation for shadow effect
+    shadowColor: "#000", // Color of the shadow
+    shadowOffset: {
+      width: 0, // No horizontal offset
+      height: 2, // Vertical offset
+    },
+    shadowOpacity: 0.25, // Opacity of the shadow
+    shadowRadius: 3.84, // Radius of the shadow
   },
   studentId: {
     fontSize: 16,
