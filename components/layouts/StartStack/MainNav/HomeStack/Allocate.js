@@ -281,6 +281,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderColor: "#e6e6e6",
     overflow: "hidden",
+    borderTopLeftRadius: 20, // Border radius at the top left
+    borderTopRightRadius: 20, // Border radius at the top right
+    borderBottomLeftRadius: 0, // No border radius at the bottom left
+    borderBottomRightRadius: 0, // No border radius at the bottom right
+   
+    borderColor: "#e6e6e6",
+    bottom:-1
   },
   main: {
     flex: 1,
