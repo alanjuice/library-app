@@ -162,30 +162,24 @@ export default function App() {
 
   return (
     <>
-      <View style={styles.main}>
-        <Text>hello world</Text>
-        <StatusBar style="auto" />
-      </View>
+      <View style={styles.main}></View>
 
       <View style={styles.container}>
         <View style={styles.switchContainer}>
-          <Text>Save Allocated Books</Text>
+          <Text>Allocate</Text>
           <Switch
             trackColor={{ false: "#09F12E", true: "#09F12E" }}
             thumbColor={isReturnBookPage ? "#ffff" : "#ffff"}
             value={isReturnBookPage}
             onValueChange={togglePage}
           />
-          <Text>return book</Text>
+          <Text>Deallocate</Text>
         </View>
 
         {isReturnBookPage ? (
           <>
-            <Text style={styles.heading}>
-              {isReturnBookPage ? "Return Book" : "hi"}
-            </Text>
+            <Text style={styles.heading}>Deallocate Book</Text>
             <View style={styles.bookIdSection}>
-              <Text style={styles.bookIdLabel}>Book ID:</Text>
               <TextInput
                 placeholder="Enter Book ID"
                 style={styles.bookIdInput}
@@ -198,34 +192,27 @@ export default function App() {
               icon=""
               mode="contained"
               onPress={() => {
-                console.log("dd");
                 returnBook(bookId);
               }}
               style={[
                 styles.submitButton,
-                { margin: 10, backgroundColor: "#EE0823" },
+                {
+                  margin: 10,
+                  backgroundColor: "#EE0823",
+                  width: "33%", // Set width to half of its container
+                  alignSelf: "center", // Center horizontally
+                },
               ]}
             >
               Submit
             </Button>
-
             <ScrollView
               contentContainerStyle={styles.scrollContainer}
             ></ScrollView>
           </>
         ) : (
           <>
-            <Button
-              icon=""
-              mode="contained"
-              onPress={allocateBooks}
-              style={[
-                styles.addButton,
-                { margin: 10, backgroundColor: "#F20C0C" },
-              ]}
-            >
-              SAVE ALLOCATED BOOKS
-            </Button>
+            <Text style={styles.heading}>Allocate Books</Text>
             <ScrollView contentContainerStyle={styles.scrollContainer}>
               {loading ? (
                 <ActivityIndicator size="large" color="#0000ff" />
@@ -237,13 +224,7 @@ export default function App() {
                         <BoxComponent
                           student={student}
                           data={books}
-                          text={
-                            <Text>
-                              <Text style={styles.boldText}>{student.id}</Text>
-                              {"     "}
-                              {student.name}
-                            </Text>
-                          }
+                          text={<Text>{student.name}</Text>}
                           onSelectBook={handleSelectBook}
                         />
                       </View>
@@ -251,13 +232,29 @@ export default function App() {
                   </ScrollView>
                 </View>
               )}
+              <Button
+                icon=""
+                mode="contained"
+                onPress={allocateBooks}
+                style={[
+                  styles.addButton,
+                  {
+                    margin: 10,
+                    backgroundColor: "#F20C0C",
+                    width: "50%",
+                    alignSelf: "center",
+                  },
+                ]}
+              >
+                Submit
+              </Button>
             </ScrollView>
           </>
         )}
       </View>
 
       <Appbar style={styles.appbar}>
-        <Text style={styles.appbarText}>Students List</Text>
+        <Text style={styles.appbarText}>Allocation</Text>
         <Avatar.Image
           size={40}
           source={require("../../../../../assets/favicon.png")}
@@ -285,16 +282,15 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20, // Border radius at the top right
     borderBottomLeftRadius: 0, // No border radius at the bottom left
     borderBottomRightRadius: 0, // No border radius at the bottom right
-   
+
     borderColor: "#e6e6e6",
-    bottom:-1
+    bottom: -1,
   },
   main: {
     flex: 1,
-    backgroundColor: "#0D08F3",
+    backgroundColor: "#075e9c",
     alignItems: "center",
     justifyContent: "center",
-    opacity: 0.66,
   },
   bottom: {
     position: "absolute",
@@ -320,7 +316,7 @@ const styles = StyleSheet.create({
     flex: 1, // This line makes the width 100%
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#e6e6e6",
+    backgroundColor: "#3278D680",
     margin: 20,
     padding: 20,
     borderRadius: 10,
@@ -344,7 +340,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   appbar: {
-    backgroundColor: "#0D08F3",
+    backgroundColor: "#075e9c",
     height: 64,
     flexDirection: "row",
     position: "absolute",
@@ -422,5 +418,5 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 5,
     backgroundColor: "#f0f0f0",
-  }
+  },
 });

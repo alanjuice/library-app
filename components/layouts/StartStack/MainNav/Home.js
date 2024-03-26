@@ -8,6 +8,7 @@ import Menu from "./HomeStack/Menu";
 import Student from "./HomeStack/Students";
 import Books from "./HomeStack/Books";
 import Allocate from "./HomeStack/Allocate";
+import Analytics from "./HomeStack/Analytics";
 
 const Stack = createStackNavigator();
 
@@ -17,26 +18,27 @@ const HomeStack = () => {
       <Stack.Screen
         name="Menu"
         component={Menu}
-        options={{ headerShown: false,
-           }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="Students"
         component={Student}
-        options={{ headerShown: false,
-        }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="Allocate"
         component={Allocate}
-        options={{ headerShown: false,
-         }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="Books"
         component={Books}
-        options={{ headerShown: false ,
-        }}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Analytics"
+        component={Analytics}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

@@ -111,7 +111,10 @@ function Menu() {
                   // Specify color for the box
                 />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.columnContainer}>
+              <TouchableOpacity
+                style={styles.columnContainer}
+                onPress={() => navigation.navigate("Analytics")}
+              >
                 <BoxComponent
                   text="Analytics"
                   imageSource={require("../../../../../assets/analytics.png")}
@@ -128,7 +131,7 @@ function Menu() {
 
 const styles = StyleSheet.create({
   appbar: {
-    backgroundColor: "#ffff",
+    backgroundColor: "#075e9c",
     color: "black",
     height: 64,
     flexDirection: "row",
@@ -141,14 +144,13 @@ const styles = StyleSheet.create({
   },
   appbarText: {
     color: "white",
-    color: "black",
     fontSize: 25,
     fontWeight: "700",
   },
   mainContainer: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: "#ffff",
+    backgroundColor: "#075e9c",
     justifyContent: "flex-end", // Align content to the bottom
   },
   container: {
