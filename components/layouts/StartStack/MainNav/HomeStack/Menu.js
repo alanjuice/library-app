@@ -11,7 +11,6 @@ import { Appbar, Avatar } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import * as Animatable from "react-native-animatable";
 import * as SecureStore from "expo-secure-store";
-import jwtDecode from "jwt-decode";
 
 const BoxComponent = ({ text, imageSource, backgroundColor }) => (
   <Animatable.View

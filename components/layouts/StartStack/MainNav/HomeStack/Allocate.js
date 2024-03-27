@@ -60,6 +60,7 @@ const BoxComponent = ({ text, data, student, onSelectBook }) => {
           onChange={handleValueChange} // Call handleValueChange directly
         />
       </View>
+      
     </View>
   );
 };
@@ -354,13 +355,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-end",
     alignItems: "flex-end",
+    width: 200,
   },
   dropdown: {
-    justifyContent: "flex-end",
+    justifyContent: "center",
     height: 40,
-    width: 100,
-    marginRight: 0,
+    marginBottom: -10,
+    alignContent: "center",
+    width: "100%",
+    marginRight: -30,
   },
+
   placeholderStyle: {
     fontSize: 16,
   },
