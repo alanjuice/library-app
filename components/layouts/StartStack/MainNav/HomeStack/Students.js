@@ -1,20 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { Appbar, Avatar, Button, ActivityIndicator } from "react-native-paper";
-import {
-  StyleSheet,
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
+import { Appbar, Text, ActivityIndicator } from "react-native-paper";
+import { StyleSheet, View, ScrollView, Animated, Easing } from "react-native";
 import * as SecureStore from "expo-secure-store";
 
-const StudentBox = ({ student }) => (
-  <View style={styles.studentBox}>
-    <Text style={styles.studentId}>{student.id}</Text>
-    <Text style={styles.studentName}>{student.name}</Text>
-  </View>
-);
+const StudentBox = ({ student }) => {
+  const [fadeAnim] = useState(new Animated.Value(0)); // Initial value for opacity animation
+
+  useEffect(() => {
+    // Start opacity animation when component mounts
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000, // Duration of animation in milliseconds
+      easing: Easing.linear, // Easing function
+      useNativeDriver: true, // Use native driver for better performance
+    }).start();
+  }, []);
+
+  return (
+    <Animated.View style={[styles.studentBox, { opacity: fadeAnim }]}>
+      <Text style={styles.studentId}>{student.id}</Text>
+      <Text style={styles.studentName}>{student.name}</Text>
+    </Animated.View>
+  );
+};
 
 export default function Students() {
   const [students, setStudents] = useState([]);
@@ -40,8 +48,7 @@ export default function Students() {
 
       const responseData = await response.json();
       setStudents(responseData);
-      setLoading(false);
-      console.log(responseData);
+      setLoading(false); // Set loading to false after fetching data
     } catch (error) {
       console.error("Error fetching data:", error);
       setLoading(false);
@@ -57,11 +64,6 @@ export default function Students() {
       <View style={styles.mainContainer}>
         <Appbar style={styles.appbar}>
           <Text style={styles.appbarText}>Students</Text>
-          {/* <Avatar.Image
-          size={40}
-          source={require("../../../../../assets/favicon.png")}
-          style={styles.avatar}
-        /> */}
         </Appbar>
         <View style={styles.container}>
           {loading ? (
@@ -70,6 +72,8 @@ export default function Students() {
               size="large"
               color="#0000ff"
             />
+          ) : students.length === 0 ? (
+            <Text style={styles.noStudentsText}>No Students Available</Text>
           ) : (
             <ScrollView contentContainerStyle={styles.scrollContainer}>
               {students.map((student, index) => (
@@ -89,13 +93,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffff",
     alignItems: "center",
     justifyContent: "center",
-    height: "80%", // Adjust height as needed
+    height: "85%", // Adjust height as needed
     width: "100%",
-    borderTopLeftRadius: 20, // Border radius at the top left
-    borderTopRightRadius: 20, // Border radius at the top right
-    borderBottomLeftRadius: 0, // No border radius at the bottom left
-    borderBottomRightRadius: 0, // No border radius at the bottom right
-
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
     borderColor: "#e6e6e6",
     bottom: -1,
     shadowOffset: { width: -2, height: 2 },
@@ -103,19 +106,11 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: "#075e9c",
-    justifyContent: "flex-end", // Align content to the bottom
-  },
-  main: {
-    flex: 1,
-    backgroundColor: "#0C6EEECC",
-    alignItems: "center",
-    justifyContent: "center",
-    opacity: 0.66,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#4083B7",
+    justifyContent: "flex-end",
   },
   appbar: {
-    backgroundColor: "#075e9c",
+    backgroundColor: "#4083B7",
     height: 64,
     flexDirection: "row",
     position: "absolute",
@@ -133,6 +128,15 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     paddingTop: 20,
+  },
+  noStudentsText: {
+    flex: 1,
+    textAlign: "center",
+    fontSize: 22,
+    color: "red",
+    marginTop: 18,
+    textAlign: "center",
+    fontWeight:"700",
   },
   studentBox: {
     backgroundColor: "#3278D680",
@@ -154,8 +158,5 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  avatar: {
-    marginRight: 10,
   },
 });

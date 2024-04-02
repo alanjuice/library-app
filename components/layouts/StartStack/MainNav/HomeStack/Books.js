@@ -1,15 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { Appbar, Avatar, Button, ActivityIndicator } from "react-native-paper";
-import { StyleSheet, View, Text, ScrollView } from "react-native";
+import { Appbar, Avatar, ActivityIndicator } from "react-native-paper";
+import { StyleSheet, View, Text, ScrollView, Animated, Easing } from "react-native";
 import * as SecureStore from "expo-secure-store";
 
 // Component for individual book box
-const BookBox = ({ book }) => (
-  <View style={styles.bookBox}>
-    <Text style={styles.bookId}>{book.id}</Text>
-    <Text style={styles.bookText}>{book.name}</Text>
-  </View>
-);
+const BookBox = ({ book }) => {
+  const [fadeAnim] = useState(new Animated.Value(0)); // Initial value for opacity animation
+
+  useEffect(() => {
+    // Start opacity animation when component mounts
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000, // Duration of animation in milliseconds
+      easing: Easing.linear, // Easing function
+      useNativeDriver: true, // Use native driver for better performance
+    }).start();
+  }, []);
+
+  return (
+    <Animated.View style={[styles.bookBox, { opacity: fadeAnim }]}>
+      <Text style={styles.bookId}>{book.id}</Text>
+      <Text style={styles.bookText}>{book.name}</Text>
+    </Animated.View>
+  );
+};
 
 export default function Books() {
   const [books, setBooks] = useState([]);
@@ -19,7 +33,7 @@ export default function Books() {
     try {
       const token = await SecureStore.getItemAsync("token");
       const response = await fetch(
-        "https://sunday-library.onrender.com" + "/teacher/books",
+        "https://sunday-library.onrender.com" + "/teacher/freebooks",
         {
           method: "GET",
           headers: {
@@ -36,6 +50,7 @@ export default function Books() {
       const responseData = await response.json();
       setBooks(responseData);
       setLoading(false);
+      console.log("chris",responseData);
     } catch (error) {
       console.error("Error fetching data:", error);
       setLoading(false); // Ensure loading state is set to false even on error
@@ -51,11 +66,11 @@ export default function Books() {
       <View style={styles.mainContainer}>
         <Appbar style={styles.appbar}>
           <Text style={styles.appbarText}>Books</Text>
-          <Avatar.Image
+          {/* <Avatar.Image
             size={40}
             source={require("../../../../../assets/favicon.png")}
             style={styles.avatar}
-          />
+          /> */}
         </Appbar>
         <View style={styles.container}>
           {loading ? (
@@ -64,6 +79,8 @@ export default function Books() {
               size="large"
               color="#0000ff"
             />
+          ) : books.length === 0 ? (
+            <Text style={styles.noBooksText}>No Books Available</Text>
           ) : (
             <ScrollView contentContainerStyle={styles.scrollContainer}>
               {books.map((book, index) => (
@@ -76,11 +93,12 @@ export default function Books() {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: "#075e9c",
+    backgroundColor: "#4083B7",
     justifyContent: "flex-end", // Align content to the bottom
   },
   container: {
@@ -88,7 +106,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffff",
     alignItems: "center",
     justifyContent: "center",
-    height: "80%", // Adjust height as needed
+    height: "85%", // Adjust height as needed
     width: "100%",
     borderTopLeftRadius: 20, // Border radius at the top left
     borderTopRightRadius: 20, // Border radius at the top right
@@ -99,7 +117,7 @@ const styles = StyleSheet.create({
     bottom: -1,
   },
   appbar: {
-    backgroundColor: "#075e9c",
+    backgroundColor: "#4083B7",
     height: 64,
     flexDirection: "row",
     position: "absolute",
@@ -120,7 +138,6 @@ const styles = StyleSheet.create({
   },
   bookBox: {
     backgroundColor: "#3278D680",
-
     marginHorizontal: 20,
     marginBottom: 10,
     padding: 20,
@@ -142,5 +159,14 @@ const styles = StyleSheet.create({
   },
   avatar: {
     marginRight: 10,
+  },
+  noBooksText: {
+    flex: 1,
+    textAlign: "center",
+    fontSize: 22,
+    color: "red",
+    marginTop: 18,
+    textAlign: "center",
+    fontWeight:"700",
   },
 });

@@ -1,46 +1,44 @@
 import React, { useEffect, useState } from "react";
 import { StatusBar, Switch } from "react-native";
 import { Appbar, Avatar, ActivityIndicator, Button } from "react-native-paper";
-import { StyleSheet, View, Text, ScrollView, TextInput } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import * as SecureStore from "expo-secure-store";
 
-const returnBook = async (bookId) => {
-  const token = await SecureStore.getItemAsync("token");
-  fetch("https://sunday-library.onrender.com/teacher/deallocate", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-authtoken": token,
-    },
-    body: JSON.stringify({ bookId }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.status) {
-        alert("Book deallocated Successfully");
-      } else {
-        alert("Error man");
-      }
-      console.log("Return Book Response:", data);
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
-};
-const BoxComponent = ({ text, data, student, onSelectBook }) => {
+import DropDownPicker from "react-native-dropdown-picker";
+
+const BoxComponent = ({
+  text,
+  data,
+  student,
+  onSelectBook,
+  availableBooks,
+}) => {
   const id = student.id;
   const [value, setValue] = useState(null);
+  const [placeholderText, setPlaceholderText] = useState("Select Book");
+
+  useEffect(() => {
+    setValue(null); // Reset selected value when the component re-renders
+  }, [availableBooks]); // Reset selected value when availableBooks changes
 
   const handleValueChange = (item) => {
     setValue(item.value);
     onSelectBook(id, item.value); // Update parent state when value changes
+    setPlaceholderText(item.label); // Set the placeholder text to the selected book label
   };
 
   return (
     <View style={styles.box}>
       <View style={styles.boxContent}>
-        <Text style={styles.boxText}>{text}</Text>
+        <Text style={styles.studentName}>{text}</Text>
       </View>
       <View style={styles.dropdownContainer}>
         <Dropdown
@@ -49,39 +47,100 @@ const BoxComponent = ({ text, data, student, onSelectBook }) => {
           selectedTextStyle={styles.selectedTextStyle}
           inputSearchStyle={styles.inputSearchStyle}
           iconStyle={styles.iconStyle}
-          data={data}
+          data={availableBooks}
           search
           maxHeight={300}
           labelField="label"
           valueField="value"
-          placeholder="Select item"
-          searchPlaceholder="Search..."
+          placeholder={placeholderText}
+          searchPlaceholder="Search"
           value={value}
           onChange={handleValueChange} // Call handleValueChange directly
         />
       </View>
-      
     </View>
   );
+};
+
+const returnBook = async (bookIds, callback) => {
+  console.log("Deallocating books with IDs:", JSON.stringify(bookIds));
+
+  const token = await SecureStore.getItemAsync("token");
+  fetch("https://sunday-library.onrender.com/teacher/deallocate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-authtoken": token,
+    },
+    body: JSON.stringify({ bookIds }), // Pass array of bookIds in the body
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.status) {
+        alert("Books deallocated Successfully");
+      } else {
+        alert("Error: No Books Available to Deallocate");
+      }
+      console.log("Return Books Response:", data);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    })
+    .finally(() => {
+      console.log("Deallocate process completed");
+      callback(); // Call the callback function to reset loading state after request completes
+    });
 };
 
 export default function App() {
   const [students, setStudents] = useState([]);
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isReturnBookPage, setIsReturnBookPage] = useState(true);
   const [bookId, setBookId] = useState("");
   const [selectedBooks, setSelectedBooks] = useState({}); // State to store selected book ID for each student
+  const [availableBooks, setAvailableBooks] = useState([]); // State to store available books for each student
+  const [allocatedBooks, setAllocatedBooks] = useState([]); // State to store allocated books
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [freeItems, setFreeItems] = useState([]);
+  const [dataFetched, setDataFetched] = useState(false);
+  const [selectedChart, setselectedChart] = useState("Allocate");
+  const [isOpen, setIsOpen] = useState(false);
+  const [currentValue, setCurrentValue] = useState([]);
 
-  const togglePage = () => {
-    setIsReturnBookPage((prevValue) => !prevValue);
-    setSelectedBooks({});
+  const toggleChart = (chartType) => {
+    setselectedChart(chartType);
+    // Toggle between pages based on the selected chart type
+    if (chartType === "deallocate") {
+      fetchData(); // Fetch data if not already fetched
+      setDataFetched(true); // Set dataFetched to true to avoid fetching data multiple times
+    }
   };
 
   const fetchData = async () => {
     try {
       const token = await SecureStore.getItemAsync("token");
 
+      // Fetching Allocated Books
+      const responseallocated = await fetch(
+        "https://sunday-library.onrender.com/teacher/allocatedbooks",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "x-authtoken": token,
+          },
+        }
+      );
+      const responseD = await responseallocated.json();
+      console.log("responseData:", responseData);
+
+      // Access the data array from the response
+      const allocatedDatas = responseD.data.map((item) => ({
+        label: `${item.id} - ${item.name}`, // Concatenate book ID and name
+        value: item.id, // Set the id property
+      }));
+
+      setFreeItems(allocatedDatas);
       // Fetching Students
       let response = await fetch(
         "https://sunday-library.onrender.com/teacher/students",
@@ -98,7 +157,7 @@ export default function App() {
 
       // Fetching Books
       response = await fetch(
-        "https://sunday-library.onrender.com/teacher/books",
+        "https://sunday-library.onrender.com/teacher/freebooks",
         {
           method: "GET",
           headers: {
@@ -108,12 +167,15 @@ export default function App() {
         }
       );
       responseData = await response.json();
+      console.log("chris", responseData);
       const data = responseData.map((item) => ({
-        label: item.name,
+        label: `${item.id} - ${item.name} `, // Include both name and id in the label
         value: item.id,
       }));
       setBooks(data);
       setLoading(false);
+      setAvailableBooks(data); // Initialize availableBooks with all books
+      console.log(data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -124,41 +186,63 @@ export default function App() {
   }, []); // Ensure that useEffect runs only once on component mount
 
   const handleSelectBook = (studentId, bookId) => {
-    console.log(selectedBooks);
-    setSelectedBooks((prevSelectedBooks) => ({
-      ...prevSelectedBooks,
-      [studentId]: bookId,
-    }));
+    const updatedSelectedBooks = { ...selectedBooks, [studentId]: bookId };
+    setSelectedBooks(updatedSelectedBooks);
+
+    // Update availableBooks for other students
+    const remainingBooks = books.filter((book) => {
+      return !Object.values(updatedSelectedBooks).includes(String(book.value));
+    });
+    setAvailableBooks(remainingBooks);
   };
 
   const allocateBooks = async () => {
+    setLoading(true); // Set loading state to true when allocating books
+
     console.log("Selected Books:", selectedBooks);
     const convertedArray = Object.entries(selectedBooks).map(([sid, bid]) => ({
       sid: sid,
       bid: bid, // Assuming you want bid as a number
     }));
 
-    const token = await SecureStore.getItemAsync("token");
-    fetch("https://sunday-library.onrender.com/teacher/allocate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-authtoken": token,
-      },
-      body: JSON.stringify(convertedArray),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.status) {
-          alert("Book allocated Successfully");
-        } else {
-          alert("Error man");
+    try {
+      const token = await SecureStore.getItemAsync("token");
+      const response = await fetch(
+        "https://sunday-library.onrender.com/teacher/allocate",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-authtoken": token,
+          },
+          body: JSON.stringify(convertedArray),
         }
-        console.log("Return Book Response:", data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+      );
+      const data = await response.json();
+
+      if (data.status) {
+        alert("Book allocated Successfully");
+        fetchData(); // Refresh data after successful allocation
+      } else {
+        alert("Error Can't Allocate Book");
+      }
+      console.log("Allocate Books Response:", data);
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false); // Reset loading state after request completes
+    }
+  };
+
+  const handleReturnBook = async () => {
+    if (!loading) {
+      setLoading(true); // Set loading state to true when deallocating book
+      returnBook(currentValue, () => {
+        fetchData(); // Refresh data after successful deallocation
+        setLoading(false);
+      }); // Call returnBook function with setLoading function
+      setCurrentValue([]);
+    }
   };
 
   return (
@@ -166,101 +250,130 @@ export default function App() {
       <View style={styles.main}></View>
 
       <View style={styles.container}>
-        <View style={styles.switchContainer}>
-          <Text>Allocate</Text>
-          <Switch
-            trackColor={{ false: "#09F12E", true: "#09F12E" }}
-            thumbColor={isReturnBookPage ? "#ffff" : "#ffff"}
-            value={isReturnBookPage}
-            onValueChange={togglePage}
-          />
-          <Text>Deallocate</Text>
+        <View style={styles.toggleContainer}>
+          <TouchableOpacity
+            style={[
+              styles.toggleButton,
+              selectedChart === "Allocate" && styles.selectedButton,
+            ]}
+            onPress={() => toggleChart("Allocate")}
+          >
+            <Text style={styles.buttonText}>Allocation</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.toggleButton,
+              selectedChart === "Deallocate" && styles.selectedButton,
+            ]}
+            onPress={() => toggleChart("Deallocate")}
+          >
+            <Text style={styles.buttonText}>Deallocation</Text>
+          </TouchableOpacity>
         </View>
 
-        {isReturnBookPage ? (
-          <>
-            <Text style={styles.heading}>Deallocate Book</Text>
-            <View style={styles.bookIdSection}>
-              <TextInput
-                placeholder="Enter Book ID"
-                style={styles.bookIdInput}
-                value={bookId}
-                onChangeText={setBookId}
-              />
-            </View>
+        <View style={styles.contentContainer}>
+          {selectedChart === "Deallocate" ? (
+            <>
+              <View style={styles.deallocateContainer}>
+                <View style={{ padding: 30 }}>
+                  <DropDownPicker
+                    items={freeItems}
+                    open={isOpen}
+                    setOpen={() => setIsOpen(!isOpen)}
+                    value={currentValue}
+                    setValue={(val) => setCurrentValue(val)}
+                    maxHeight={200}
+                    autoScroll
+                    placeholder="Select books"
+                    placeholderStyle={{
+                      color: "black",
+                      fontWeight: "bold",
+                      fontSize: 16,
+                    }}
+                    showTickIcon={true}
+                    showArrowIcon={true}
+                    disableBorderRadius={true}
+                    multiple={true}
+                    mode="BADGE"
+                  />
+                </View>
 
-            <Button
-              icon=""
-              mode="contained"
-              onPress={() => {
-                returnBook(bookId);
-              }}
-              style={[
-                styles.submitButton,
-                {
-                  margin: 10,
-                  backgroundColor: "#EE0823",
-                  width: "33%", // Set width to half of its container
-                  alignSelf: "center", // Center horizontally
-                },
-              ]}
-            >
-              Submit
-            </Button>
-            <ScrollView
-              contentContainerStyle={styles.scrollContainer}
-            ></ScrollView>
-          </>
-        ) : (
-          <>
-            <Text style={styles.heading}>Allocate Books</Text>
-            <ScrollView contentContainerStyle={styles.scrollContainer}>
+                <Button
+                  icon=""
+                  mode="contained"
+                  onPress={handleReturnBook}
+                  style={[
+                    styles.submitButton,
+                    {
+                      margin: 20,
+                      backgroundColor: "#EE0823",
+                      width: "33%",
+                      alignSelf: "center",
+                    },
+                  ]}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <View style={styles.loadingContainer}></View>
+                  ) : (
+                    "Submit"
+                  )}
+                </Button>
+              </View>
+            </>
+          ) : (
+            <>
               {loading ? (
                 <ActivityIndicator size="large" color="#0000ff" />
+              ) : books.length === 0 && students.length === 0 ? (
+                <Text style={styles.noDataText}>
+                  No Students & Books Available
+                </Text>
+              ) : students.length === 0 ? (
+                <Text style={styles.noDataText}>No Students Available</Text>
+              ) : books.length === 0 ? (
+                <Text style={styles.noDataText}>No Books Available</Text>
               ) : (
-                <View>
-                  <ScrollView contentContainerStyle={styles.scrollContainer}>
-                    {students.map((student, index) => (
-                      <View key={index} style={styles.boxRow}>
-                        <BoxComponent
-                          student={student}
-                          data={books}
-                          text={<Text>{student.name}</Text>}
-                          onSelectBook={handleSelectBook}
-                        />
-                      </View>
-                    ))}
-                  </ScrollView>
-                </View>
+                <ScrollView contentContainerStyle={styles.scrollContainer}>
+                  {students.map((student, index) => (
+                    <View key={index} style={styles.boxRow}>
+                      <BoxComponent
+                        student={student}
+                        data={availableBooks}
+                        text={<Text>{student.name}</Text>}
+                        onSelectBook={handleSelectBook}
+                        availableBooks={availableBooks}
+                      />
+                    </View>
+                  ))}
+                  {!loading && books.length > 0 && (
+                    <View style={{ marginVertical: 20 }}>
+                      <Button
+                        icon=""
+                        mode="contained"
+                        onPress={allocateBooks}
+                        style={[
+                          styles.addButton,
+                          {
+                            backgroundColor: "#F20C0C",
+                            width: "50%",
+                            alignSelf: "center",
+                          },
+                        ]}
+                      >
+                        Submit
+                      </Button>
+                    </View>
+                  )}
+                </ScrollView>
               )}
-              <Button
-                icon=""
-                mode="contained"
-                onPress={allocateBooks}
-                style={[
-                  styles.addButton,
-                  {
-                    margin: 10,
-                    backgroundColor: "#F20C0C",
-                    width: "50%",
-                    alignSelf: "center",
-                  },
-                ]}
-              >
-                Submit
-              </Button>
-            </ScrollView>
-          </>
-        )}
+            </>
+          )}
+        </View>
       </View>
 
       <Appbar style={styles.appbar}>
-        <Text style={styles.appbarText}>Allocation</Text>
-        <Avatar.Image
-          size={40}
-          source={require("../../../../../assets/favicon.png")}
-          style={styles.avatar}
-        />
+        <Text style={styles.appbarText}>Allocation / Deallocation</Text>
       </Appbar>
     </>
   );
@@ -270,78 +383,87 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#ffff",
-    alignItems: "",
-    justifyContent: "center", // Changed to flex-start to position at top
+    alignItems: "center",
+    justifyContent: "center",
     position: "absolute",
     bottom: 0,
-    height: "75%",
+    height: "85%",
     width: "100%",
     borderRadius: 20,
     borderColor: "#e6e6e6",
     overflow: "hidden",
-    borderTopLeftRadius: 20, // Border radius at the top left
-    borderTopRightRadius: 20, // Border radius at the top right
-    borderBottomLeftRadius: 0, // No border radius at the bottom left
-    borderBottomRightRadius: 0, // No border radius at the bottom right
-
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
     borderColor: "#e6e6e6",
     bottom: -1,
   },
   main: {
     flex: 1,
-    backgroundColor: "#075e9c",
+    backgroundColor: "#4083B7",
     alignItems: "center",
     justifyContent: "center",
   },
-  bottom: {
-    position: "absolute",
-    backgroundColor: "#0D08F3",
-    justifyContent: "space-around",
-    height: "10%",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    opacity: 0.66,
+  contentContainer: {
+    flex: 1,
+    width: "100%",
+  },
+  toggleContainer: {
+    flexDirection: "row",
+    margin: 10,
+  },
+  toggleButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderRadius: 20,
-  },
-  boxContent: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  boxText: {
-    marginLeft: 10,
-    flex: 1, // Adjusted to take remaining space
-    flexWrap: "wrap", // Allow text to wrap if exceeding width
-  },
-  box: {
-    flex: 1, // This line makes the width 100%
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#3278D680",
-    margin: 20,
-    padding: 20,
-    borderRadius: 10,
-    marginBottom: 0,
-    height: 60,
-    width: "90%", // Set width to 90%
-  },
-
-  boxRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginBottom: 10,
-    alignItems: "center", // Added to center boxes horizontally
-  },
-  avatar: {
+    borderWidth: 1,
+    borderColor: "#333",
     marginRight: 10,
+    color: "#fff",
+  },
+  selectedButton: {
+    backgroundColor: "#db5565",
+    color: "#fff",
+  },
+  buttonText: {
+    fontSize: 16,
+    color: "#333",
+  },
+  deallocateContainer: {
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    marginHorizontal: 20,
+    marginVertical: 20,
+  },
+  heading: {
+    fontSize: 20,
+    margin: 9,
+    fontWeight: "bold",
+    marginBottom: 0,
+    textAlign: "center",
+  },
+  scrollContainer: {
+    flexGrow: 1,
+  },
+  noDataText: {
+    flex: 1,
+    textAlign: "center",
+    fontSize: 22,
+    color: "red",
+    marginTop: 18,
+    textAlign: "center",
+    fontWeight: "700",
   },
   appbarText: {
     color: "white",
     fontSize: 25,
     fontWeight: "700",
+    width: "100%",
   },
   appbar: {
-    backgroundColor: "#075e9c",
+    backgroundColor: "#4083B7",
     height: 64,
     flexDirection: "row",
     position: "absolute",
@@ -351,11 +473,33 @@ const styles = StyleSheet.create({
     right: 0,
     paddingHorizontal: 20,
   },
+  box: {
+    flexDirection: "column",
+    alignItems: "flex-start",
+    justifyContent: "center",
+    backgroundColor: "#3278D680",
+    marginTop: 10,
+    padding: 20,
+    borderRadius: 10,
+    height: 110,
+    width: "90%",
+    marginHorizontal: 20,
+  },
+  boxRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+  },
+  studentName: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
   dropdownContainer: {
-    flex: 1,
-    justifyContent: "flex-end",
-    alignItems: "flex-end",
-    width: 200,
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
+    marginBottom: 0,
+    width: "100%",
+    padding: 10,
   },
   dropdown: {
     justifyContent: "center",
@@ -364,8 +508,11 @@ const styles = StyleSheet.create({
     alignContent: "center",
     width: "100%",
     marginRight: -30,
+    borderRadius: 10,
+    borderColor: "#000000",
+    borderWidth: 1,
+    padding: 10,
   },
-
   placeholderStyle: {
     fontSize: 16,
   },
@@ -379,49 +526,5 @@ const styles = StyleSheet.create({
   inputSearchStyle: {
     height: 40,
     fontSize: 16,
-  },
-
-  bookIdSection: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-    marginHorizontal: 20, // Changed margin to marginHorizontal
-  },
-
-  bookIdLabel: {
-    marginRight: 0,
-  },
-
-  bookIdInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 10,
-    margin: 20,
-    flex: 1, // Allow most of the space in the row
-  },
-
-  heading: {
-    fontSize: 20,
-    margin: 20,
-    fontWeight: "bold",
-    marginBottom: 10,
-
-    textAlign: "center",
-  },
-
-  switchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginVertical: 10,
-    fontSize: 96,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
-    backgroundColor: "#f0f0f0",
   },
 });

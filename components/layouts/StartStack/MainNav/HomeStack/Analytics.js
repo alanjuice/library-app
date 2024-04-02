@@ -3,12 +3,32 @@ import { Appbar, Avatar, ActivityIndicator } from "react-native-paper";
 import { StyleSheet, View, Text, ScrollView } from "react-native";
 import * as SecureStore from "expo-secure-store";
 
-const BoxComponent = ({ a }) => (
-  <View style={styles.bookBox}>
-    <Text style={styles.bookId}>{a.student_name}</Text>
-    <Text style={styles.bookText}>{a.book_name}</Text>
-  </View>
-);
+const BoxComponent = ({ allocation }) => {
+  if (!allocation || !allocation.student_name || !allocation.books) {
+    console.log("Allocation data is null or incomplete");
+    return null;
+  }
+
+  return (
+    <View style={styles.bookBox}>
+      <Text style={styles.studentName}>{allocation.student_name}</Text>
+      {allocation.books.map((book, index) => {
+        console.log("Book object:", book); // Log the book object
+        return (
+          <View key={index} style={styles.bookContainer}>
+            <Text style={styles.bookId}>{book.book_id}</Text>
+            <Text style={styles.bookText}>{book.book_name}</Text>
+          </View>
+        );
+      })}
+    </View>
+  );
+};
+
+
+
+
+
 
 export default function Analytics() {
   const [allocation, setAllocation] = useState([]);
@@ -27,20 +47,22 @@ export default function Analytics() {
           },
         }
       );
-
+  
       if (!response.ok) {
         throw new Error("Failed to fetch details");
       }
-
+  
       const responseData = await response.json();
+      console.log("chris joyhn",responseData.data[0]); // Log responseData.data to see its structure
       setAllocation(responseData.data);
       setLoading(false);
-      console.log(allocation);
+      console.log("chris joyhn",responseData.data[0]); // Log responseData.data to see its structure
     } catch (error) {
       console.error("Error fetching data:", error);
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
     fetchAllocation();
@@ -49,13 +71,8 @@ export default function Analytics() {
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.mainContainer}>
-        <Appbar style={styles.appbar}>
+      <Appbar style={styles.appbar}>
           <Text style={styles.appbarText}>Analytics</Text>
-          <Avatar.Image
-            size={40}
-            source={require("../../../../../assets/favicon.png")}
-            style={styles.avatar}
-          />
         </Appbar>
         <View style={styles.container}>
           {loading ? (
@@ -64,10 +81,13 @@ export default function Analytics() {
               size="large"
               color="#0000ff"
             />
+          ) : allocation.length === 0 ? (
+            <Text style={styles.noDataText}>No Allocation Data Available</Text>
           ) : (
             <ScrollView contentContainerStyle={styles.scrollContainer}>
-              {Object.values(allocation).map((allocati, index) => (
-                <BoxComponent key={index} a={allocati} />
+              {/* Render BoxComponent only if allocation is not empty */}
+              {allocation.map((allocati, index) => (
+                <BoxComponent key={index} allocation={allocati} />
               ))}
             </ScrollView>
           )}
@@ -76,11 +96,12 @@ export default function Analytics() {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: "#075e9c",
+    backgroundColor: "#4083B7",
     justifyContent: "flex-end", // Align content to the bottom
   },
   container: {
@@ -88,18 +109,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffff",
     alignItems: "center",
     justifyContent: "center",
-    height: "80%", // Adjust height as needed
+    height: "85%", // Adjust height as needed
     width: "100%",
     borderTopLeftRadius: 20, // Border radius at the top left
     borderTopRightRadius: 20, // Border radius at the top right
     borderBottomLeftRadius: 0, // No border radius at the bottom left
     borderBottomRightRadius: 0, // No border radius at the bottom right
-
     borderColor: "#e6e6e6",
     bottom: -1,
   },
   appbar: {
-    backgroundColor: "#075e9c",
+    backgroundColor: "#4083B7",
     height: 64,
     flexDirection: "row",
     position: "absolute",
@@ -120,7 +140,6 @@ const styles = StyleSheet.create({
   },
   bookBox: {
     backgroundColor: "#3278D680",
-
     marginHorizontal: 20,
     marginBottom: 10,
     padding: 20,
@@ -129,11 +148,13 @@ const styles = StyleSheet.create({
   bookId: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 5, // Added margin bottom for spacing
+   marginBottom: 0,
+   color: 'rgba(8, 88, 225, 1)'
   },
   bookText: {
     fontSize: 16,
     fontWeight: "bold",
+    marginBottom: 5,
   },
   loadingIndicator: {
     flex: 1,
@@ -142,5 +163,26 @@ const styles = StyleSheet.create({
   },
   avatar: {
     marginRight: 10,
+  },
+  noDataText: {
+    flex: 1,
+    textAlign: "center",
+    fontSize: 22,
+    color: "red",
+    marginTop: 18,
+    textAlign: "center",
+    fontWeight:"700",
+  },
+  bookContainer: {
+    marginBottom: 0,
+  },
+  bookName: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  studentName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
   },
 });

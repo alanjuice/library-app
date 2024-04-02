@@ -12,14 +12,10 @@ import { useNavigation } from "@react-navigation/native";
 import * as Animatable from "react-native-animatable";
 import * as SecureStore from "expo-secure-store";
 
-const BoxComponent = ({ text, imageSource, backgroundColor }) => (
-  <Animatable.View
-    animation="fadeIn"
-    duration={1000}
-    style={[styles.box, { backgroundColor }]}
-  >
+const BoxComponent = ({ text, imageSource }) => (
+  <Animatable.View animation="fadeIn" duration={1000} style={[styles.box]}>
     <Image source={imageSource} style={styles.boxImage} />
-    <Text>{text}</Text>
+    <Text style={styles.boxText}>{text}</Text>
   </Animatable.View>
 );
 
@@ -57,12 +53,15 @@ function Menu() {
     <View style={{ flex: 1 }}>
       <View style={styles.mainContainer}>
         <Appbar style={styles.appbar}>
-          <Text style={styles.appbarText}>Welcome {loading ? "" : name}</Text>
-          <Avatar.Image
-            size={50}
-            source={require("../../../../../assets/pfp.png")}
-            style={styles.avatar}
-          />
+          <View style={styles.appbarContent}>
+            <Text style={styles.appbarText}>Welcome</Text>
+            <Text style={styles.appbarName}>{loading ? "" : name}</Text>
+          </View>
+          {/* <Avatar.Image
+    size={50}
+    source={require("../../../../../assets/pfp.png")}
+    style={styles.avatar}
+  /> */}
         </Appbar>
 
         {loading ? (
@@ -82,7 +81,6 @@ function Menu() {
                 <BoxComponent
                   text="Students"
                   imageSource={require("../../../../../assets/students.png")}
-                  backgroundColor="#AACCFF" // Specify color for the box
                 />
               </TouchableOpacity>
 
@@ -93,7 +91,6 @@ function Menu() {
                 <BoxComponent
                   text="Allocate"
                   imageSource={require("../../../../../assets/allocate.png")}
-                  backgroundColor="#00B3FF" // Specify color for the box
                 />
               </TouchableOpacity>
             </View>
@@ -106,8 +103,6 @@ function Menu() {
                 <BoxComponent
                   text="Books"
                   imageSource={require("../../../../../assets/books.png")}
-                  backgroundColor="#6FD6FF"
-                  // Specify color for the box
                 />
               </TouchableOpacity>
               <TouchableOpacity
@@ -117,7 +112,6 @@ function Menu() {
                 <BoxComponent
                   text="Analytics"
                   imageSource={require("../../../../../assets/analytics.png")}
-                  backgroundColor="#8AC8FF" // Specify color for the box
                 />
               </TouchableOpacity>
             </View>
@@ -130,7 +124,7 @@ function Menu() {
 
 const styles = StyleSheet.create({
   appbar: {
-    backgroundColor: "#075e9c",
+    backgroundColor: "#4083B7",
     color: "black",
     height: 64,
     flexDirection: "row",
@@ -141,7 +135,15 @@ const styles = StyleSheet.create({
     right: 0,
     paddingHorizontal: 20,
   },
+  appbarContent: {
+    flexDirection: "column",
+  },
   appbarText: {
+    color: "white",
+    fontSize: 25,
+    fontWeight: "700",
+  },
+  appbarName: {
     color: "white",
     fontSize: 25,
     fontWeight: "700",
@@ -149,7 +151,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: "#075e9c",
+    backgroundColor: "#4083B7",
     justifyContent: "flex-end", // Align content to the bottom
   },
   container: {
@@ -180,6 +182,11 @@ const styles = StyleSheet.create({
     height: 70,
     marginBottom: 10,
   },
+  boxText: {
+    fontSize: 18, // Adjust the font size as needed
+    fontWeight: "600", // Make the text bold
+    color: "#fff", // Change the text color
+  },
   bottombar: {
     position: "absolute",
     backgroundColor: "#0D08F3",
@@ -194,7 +201,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#3278D680",
+    backgroundColor: "#00B3FF",
     margin: 20,
     borderRadius: 10,
   },

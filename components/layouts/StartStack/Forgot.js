@@ -5,13 +5,36 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from "react-native";
 
 const ForgotPasswordScreen = () => {
-  const [phone, setPhone] = useState("");
+  const [id, setId] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleForgotPassword = () => {
-    alert("Check your mobile");
+  const handleForgotPassword = async () => {
+    try {
+      setLoading(true); // Set loading state to true when sending request
+      const response = await fetch("https://sunday-library.onrender.com/forgotpassword", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }), // Send the value from the input box as the ID
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert("Password Reset", "Check your mail for further instructions");
+      } else {
+        Alert.alert("Error", "Failed to reset password. Please try again later.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      Alert.alert("Error", "Failed to reset password. Please try again later.");
+    } finally {
+      setLoading(false); // Reset loading state after request completes
+    }
   };
 
   return (
@@ -20,11 +43,15 @@ const ForgotPasswordScreen = () => {
       <TextInput
         style={styles.input}
         placeholder="ID"
-        value={phone}
-        onChangeText={(text) => setPhone(text)}
+        value={id}
+        onChangeText={(text) => setId(text)}
       />
-      <TouchableOpacity style={styles.button} onPress={handleForgotPassword}>
-        <Text style={styles.buttonText}>Reset</Text>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={handleForgotPassword}
+        disabled={loading} // Disable the button when loading is true
+      >
+        <Text style={styles.buttonText}>{loading ? "Loading..." : "Reset"}</Text>
       </TouchableOpacity>
     </View>
   );
